@@ -5,6 +5,13 @@
 // Get references to the #generate element
 var generateBtn = document.querySelector("#generate");
 
+// strings containing all the possible characters, 
+// TODO: Maybe make these constant?
+var lowerChars = "abcdefghijklmnopqrstuvwxyz";
+var upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // or use lowerChars.toUpperCase();
+var numChars = "0123456789";
+var specialChars = " !\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~";
+var characterDictionary = [lowerChars, upperChars, numChars, specialChars];
 
 /************************* FUNCTIONS *************************/
 
@@ -18,88 +25,71 @@ function writePassword() {
 }
 
 /* Ask user for password length and desired character types via the Prompt() functions,
-   then use generate() to return a randomized password meeting the criteria. */
+   then use generate() to return a randomized password meeting the criteria.
+   Validates the generated password to have at least one character from each desired type. */
 var generatePassword = function() {
+    var password = "";
+
     // grab desired password length
     var passLength = lengthPrompt();
 
     // grab all the desired character types to use in password
     var desiredChars = setCharacterChoices();
-    // TODO: maybe make this an object?
-    /*var desiredChars = {
-        lower: false, 
-        upper: false,
-        nums: false,
-        special: false
-    };*/
 
-    return generate(passLength, desiredChars);
-};
-
-/* Make a string out of all the desired characters specified beforehand, and grab random
-   characters from that string until the desired length is reached. */
-var generate = function(desiredLength, desiredChars) {
-    // first make a bunch of strings containing all the possible characters
-    // TODO: maybe move these to global scope? Maybe make these constant?
-    var lowerChars = "abcdefghijklmnopqrstuvwxyz";
-    var upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // or use lowerChars.toUpperCase();
-    var numChars = "0123456789";
-    var specialChars = " !\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~";
-    var characterDictionary = [lowerChars, upperChars, numChars, specialChars];
-
-    // make a string containing the concatenation of all the DESIRED possible characters
+    // make a string containing the concatenation of all the desired possible characters
     var wantedChars = "";
     for (var i = 0; i < desiredChars.length; i++) {
         if (desiredChars[i]) {
             wantedChars += characterDictionary[i];
         }
     }
-    //console.log(wantedChars);
 
-    /* finally, repeatedly grab a random character from wantedChars until the desired
-       length is reached */
+    // validate: does password represent all desired criteria?
+    // if password is empty or invalid, generate a new one.
+    while(!validatePass(password, desiredChars)) {
+        console.log(password);
+        password = generate(passLength, wantedChars);
+    }
+
+    return password;
+};
+
+/* Grab random characters from wantedChars string until the desired length is reached. */
+var generate = function(length, wantedChars) {
     var password = "";
-    for (var i = 0; i < desiredLength; i++) {
-        // generate random number
-        var index = Math.floor(Math.random() * wantedChars.length); // range: [0, length)
+    for (var i = 0; i < length; i++) {
+        // generate random number. Range: [0, wantedChars.length)
+        var index = Math.floor(Math.random() * wantedChars.length);
         
         // use that number to grab a char from wantedChars and store in password
         password += wantedChars[index];
-    }
-    // validate password: does it contain 1+ char(s) of each desired type?
-    if (!validatePass(password, desiredChars, characterDictionary)) {
-        /*console.log(password);
-        window.alert("It failed lol");*/
-        return generate(desiredLength, desiredChars);
     }
     return password;
 };
 
 // Prompt user to enter a length between 8 and 128, validating the input.
 var lengthPrompt = function() {
-    var len = window.prompt(
+    var len = parseInt(window.prompt(
         "What length will this password be? Enter a number.\n" +
         "Must be at least 8, and no more than 128."
-    );
-    len = parseInt(len);
+    ));
 
     // validate: is it a Number? Is it between 8 and 128?
     // len will either be a number if parseInt worked, or NaN if not.
     while (isNaN(len) || len < 8 || len > 128) {
-        len = window.prompt(
+        len = parseInt(window.prompt(
             "This is not a valid length. Please re-enter.\n" +
             "Must be at least 8, and no more than 128."
-        );
-        len = parseInt(len);
+        ));
     }
     
     return len;
 };
 
-// Prompt user to choose AT LEAST ONE "character type" for the password, returning an array.
+// Prompt user to choose AT LEAST ONE criteria for the password, returning an array.
 var setCharacterChoices = function() {
     // make list of options to choose from and a list to store the responses
-    // TODO: maybe make this global?
+    // both will be same length and order as characterDictionary
     var charOptions = ["lowercase", "uppercase", "numerical", "special"];
     var choices = [false, false, false, false];
 
@@ -128,27 +118,28 @@ var characterPrompt = function(charType) {
     );
 };
 
-// Determine if a password has at least one of each chosen criteria.
-// note: choices and criteria are the same length.
-var validatePass = function(pass, choices, criteria) {
-    for (var i = 0; i < criteria.length; i++) {
+// Determine if password has 1+ chars of each chosen criteria from characterDictionary
+var validatePass = function(pass, choices) {
+    // for each true member of choices:
+    for (var i = 0; i < choices.length; i++) {
         if (choices[i]) {
 
-            // either we find a character of pass that matches the criteria,
             var match = false;
+            // match becomes true if a character in pass matches the criteria.
             for (var j = 0; j < pass.length; j++) {
-                if (criteria[i].includes(pass[j])) {
+                if (characterDictionary[i].includes(pass[j])) {
                     match = true;
                     break;
                 }
             }
-            // ... or we don't, and return false
+            // ...if match is still false, return false.
             if (!match) {
                 return false;
             }
 
         }
     }
+    // if all criteria are represented in pass, return true.
     return true;
 };
 
