@@ -47,7 +47,7 @@ var generate = function(desiredLength, desiredChars) {
     var specialChars = " !\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~";
     var characterDictionary = [lowerChars, upperChars, numChars, specialChars];
 
-    // now make a string containing the concatenation of all the DESIRED possible characters
+    // make a string containing the concatenation of all the DESIRED possible characters
     var wantedChars = "";
     for (var i = 0; i < desiredChars.length; i++) {
         if (desiredChars[i]) {
@@ -67,7 +67,7 @@ var generate = function(desiredLength, desiredChars) {
         password += wantedChars[index];
         desiredLength--;
     }
-    // TODO: validate password: does it contain at least one of each type of character?
+    // TODO: validate password: does it contain 1+ char(s) of each desired type?
     return password;
 };
 
@@ -92,19 +92,27 @@ var lengthPrompt = function() {
     return len;
 };
 
-// prompt the user to choose AT LEAST ONE "character type" for the password, returning an array.
+// Prompt user to choose AT LEAST ONE "character type" for the password, returning an array.
 var setCharacterChoices = function() {
     // make list of options to choose from and a list to store the responses
     // TODO: maybe make this global?
     var charOptions = ["lowercase", "uppercase", "numerical", "special"];
     var choices = [false, false, false, false];
-    //if (!choices.includes(true)) { console.log("Yup, this works."); }
 
     for (var i = 0; i < charOptions.length; i++) {
         // prompt user whether to choose to include an option
         choices[i] = characterPrompt(charOptions[i]);
     }
-    //TODO: validate: is at least one option true?
+    // validate: is at least one option true?
+    // if the choices array doesn't have a true element, recurse.
+    if (!choices.includes(true)) {
+        window.alert(
+            "You must choose to include at least one type of character in " +
+            "this password. Please try again."
+        );
+        return setCharacterChoices();
+    }
+
     return choices;
 };
 
