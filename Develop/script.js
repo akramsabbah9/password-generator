@@ -54,20 +54,24 @@ var generate = function(desiredLength, desiredChars) {
             wantedChars += characterDictionary[i];
         }
     }
-    console.log(wantedChars);
+    //console.log(wantedChars);
 
     /* finally, repeatedly grab a random character from wantedChars until the desired
        length is reached */
     var password = "";
-    while (desiredLength > 0) {
+    for (var i = 0; i < desiredLength; i++) {
         // generate random number
         var index = Math.floor(Math.random() * wantedChars.length); // range: [0, length)
-        //console.log(index);
+        
         // use that number to grab a char from wantedChars and store in password
         password += wantedChars[index];
-        desiredLength--;
     }
-    // TODO: validate password: does it contain 1+ char(s) of each desired type?
+    // validate password: does it contain 1+ char(s) of each desired type?
+    if (!validatePass(password, desiredChars, characterDictionary)) {
+        /*console.log(password);
+        window.alert("It failed lol");*/
+        return generate(desiredLength, desiredChars);
+    }
     return password;
 };
 
@@ -107,8 +111,8 @@ var setCharacterChoices = function() {
     // if the choices array doesn't have a true element, recurse.
     if (!choices.includes(true)) {
         window.alert(
-            "You must choose to include at least one type of character in " +
-            "this password. Please try again."
+            "You must choose to include at least one type of character " +
+            "criteria in this password. Please try again."
         );
         return setCharacterChoices();
     }
@@ -123,6 +127,31 @@ var characterPrompt = function(charType) {
         "Click OK to include, Cancel otherwise."
     );
 };
+
+// Determine if a password has at least one of each chosen criteria.
+// note: choices and criteria are the same length.
+var validatePass = function(pass, choices, criteria) {
+    for (var i = 0; i < criteria.length; i++) {
+        if (choices[i]) {
+
+            // either we find a character of pass that matches the criteria,
+            var match = false;
+            for (var j = 0; j < pass.length; j++) {
+                if (criteria[i].includes(pass[j])) {
+                    match = true;
+                    break;
+                }
+            }
+            // ... or we don't, and return false
+            if (!match) {
+                return false;
+            }
+
+        }
+    }
+    return true;
+};
+
 
 
 /************************* MAIN CODE *************************/
