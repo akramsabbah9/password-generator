@@ -10,8 +10,10 @@ var generateBtn = document.querySelector("#generate");
 var lowerChars = "abcdefghijklmnopqrstuvwxyz";
 var upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // or use lowerChars.toUpperCase();
 var numChars = "0123456789";
-var specialChars = " !\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~";
+var specialChars = "!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~";
 var characterDictionary = [lowerChars, upperChars, numChars, specialChars];
+
+
 
 /************************* FUNCTIONS *************************/
 
@@ -24,15 +26,14 @@ function writePassword() {
 
 }
 
-/* Ask user for password length and desired character types via the Prompt() functions,
-   then use generate() to return a randomized password meeting the criteria.
-   Validates the generated password to have at least one character from each desired type. */
+/* Ask user for password length and desired character types, then use
+   generate() to return a randomized password meeting the criteria.
+   Validate password to have at least one character from each desired type. */
 var generatePassword = function() {
     var password = "";
 
     // grab desired password length
     var passLength = lengthPrompt();
-
     // grab all the desired character types to use in password
     var desiredChars = setCharacterChoices();
 
@@ -47,7 +48,7 @@ var generatePassword = function() {
     // validate: does password represent all desired criteria?
     // if password is empty or invalid, generate a new one.
     while(!validatePass(password, desiredChars)) {
-        console.log(password);
+        //console.log(password);
         password = generate(passLength, wantedChars);
     }
 
