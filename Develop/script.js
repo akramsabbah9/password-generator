@@ -73,13 +73,23 @@ var generate = function(desiredLength, desiredChars) {
 
 // Prompt user to enter a length between 8 and 128, validating the input.
 var lengthPrompt = function() {
-    var len = 0;
-    len = window.prompt(
+    var len = window.prompt(
         "What length will this password be? Enter a number.\n" +
         "Must be at least 8, and no more than 128."
     );
-    // TODO: validate: is it a Number? Is it between 8 and 128?
-    return parseInt(len);
+    len = parseInt(len);
+
+    // validate: is it a Number? Is it between 8 and 128?
+    // len will either be a number if parseInt worked, or NaN if not.
+    while (isNaN(len) || len < 8 || len > 128) {
+        len = window.prompt(
+            "This is not a valid length. Please re-enter.\n" +
+            "Must be at least 8, and no more than 128."
+        );
+        len = parseInt(len);
+    }
+    
+    return len;
 };
 
 // prompt the user to choose AT LEAST ONE "character type" for the password, returning an array.
